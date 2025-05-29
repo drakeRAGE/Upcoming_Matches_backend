@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 const basketballApi = axios.create({
-  baseURL: 'https://v1.basketball.api-sports.io/games?date=2025-05-29',
+  baseURL: 'https://v1.basketball.api-sports.io',
   headers: {
     'x-rapidapi-key': process.env.RAPIDAPI_KEY,
     'x-rapidapi-host': 'v1.basketball.api-sports.io'
@@ -20,9 +20,13 @@ const basketballApi = axios.create({
 
 app.get('/api/matches', async (req, res) => {
   try {
+    // Get the date from query parameters, default to today if not provided
+    const date = req.query.date || new Date().toISOString().split('T')[0];
+    console.log(`Fetching matches for date: ${date}`);
+
     const response = await basketballApi.get('/games', {
       params: {
-        date: new Date().toISOString().split('T')[0],
+        date: date,
       }
     });
 
