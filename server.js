@@ -35,7 +35,13 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-app.get('/api/matches', async (req, res) => {
+// Add enhanced error handling wrapper
+const asyncHandler = fn => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+// Modify your matches endpoint to use the handler
+app.get('/api/matches', asyncHandler(async (req, res) => {
   try {
     // Get the date from query parameters, default to today if not provided
     const date = req.query.date || new Date().toISOString().split('T')[0];
@@ -85,7 +91,7 @@ app.get('/api/matches', async (req, res) => {
       error: error.response?.data || error.message 
     });
   }
-});
+}));
 
 app.get('/', (req, res) => {
   res.status(200).json({ status: 'Server is running' });
