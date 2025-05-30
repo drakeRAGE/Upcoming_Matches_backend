@@ -87,12 +87,15 @@ app.get('/api/matches', async (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.status(200).json({ status: 'Server is running' });
+});
+
 const PORT = process.env.PORT || 5000;
 
-// Only start the server if not in Vercel environment
-if (process.env.VERCEL !== '1') {
+if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running in development on port ${PORT}`);
   });
 }
 
