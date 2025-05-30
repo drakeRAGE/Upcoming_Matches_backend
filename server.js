@@ -7,7 +7,11 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://your-vercel-app-url.vercel.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 const basketballApi = axios.create({
@@ -16,6 +20,19 @@ const basketballApi = axios.create({
     'x-rapidapi-key': process.env.RAPIDAPI_KEY,
     'x-rapidapi-host': 'v1.basketball.api-sports.io'
   }
+});
+
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] Incoming ${req.method} request to ${req.url}`);
+  console.log('Headers:', req.headers);
+  console.log('Query params:', req.query);
+  next();
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Middleware Error:', err);
+  next(err);
 });
 
 app.get('/api/matches', async (req, res) => {
@@ -71,6 +88,12 @@ app.get('/api/matches', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+
+// Only start the server if not in Vercel environment
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+export default app;
